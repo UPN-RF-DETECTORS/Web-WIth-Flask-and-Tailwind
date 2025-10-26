@@ -5,9 +5,15 @@
             <span class="font-bold text-green-700 text-lg">PalmDetector</span>
         </div>
         <div>
-            <a href="{{ url_for('login') }}" class="flex items-center text-gray-700 hover:text-green-700 font-medium">
+            {% if session.get('username') %}
+            <span class="text-gray-700 font-medium">Hi, {{ session['username'] }}</span>
+            <a href="{{ url_for('auth_bp.logout') }}" class="ml-4 text-gray-500 hover:text-red-600">Logout</a>
+            {% else %}
+            <a href="{{ url_for('auth_bp.login_page') }}"
+                class="flex items-center text-gray-700 hover:text-green-700 font-medium">
                 <i class="fa-solid fa-user mr-2"></i> Masuk
             </a>
+            {% endif %}
         </div>
     </div>
 </nav>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Logout - PalmDetector{% endblock %}
+
+{% block content %}
+{% include "header.html" %}
+
+<div class="min-h-screen flex flex-col justify-center items-center bg-gray-50">
+    <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-md text-center">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Logout Berhasil</h2>
+        <p class="text-gray-600 mb-6">Anda telah keluar dari akun Anda.</p>
+        <a href="{{ url_for('auth_bp.login_page') }}"
+            class="bg-green-700 text-white font-semibold px-6 py-3 rounded-lg hover:bg-green-800 transition">
+            Masuk Lagi
+        </a>
+        <a href="{{ url_for('auth_bp.index_page') }}"
+            class="ml-4 bg-white border border-green-700 text-green-700 font-semibold px-6 py-3 rounded-lg hover:bg-green-50 transition">
+            Kembali ke Beranda
+        </a>
+    </div>
+</div>
+{% endblock %}

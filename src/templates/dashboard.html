@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - PalmDetector{% endblock %}
+
+{% block content %}
+{% include "header.html" %}
+
+<div class="min-h-screen flex flex-col justify-center items-center bg-gray-50">
+    <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-md text-center">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Selamat Datang, {{ username }}!</h2>
+        <p class="text-gray-600 mb-6">Ini adalah halaman khusus Anda setelah login.</p>
+        <a href="{{ url_for('auth_bp.logout') }}"
+            class="bg-red-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-red-700 transition">
+            Logout
+        </a>
+    </div>
+</div>
+
+{% endblock %}
