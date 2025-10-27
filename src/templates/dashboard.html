@@ -4,14 +4,45 @@
 {% block content %}
 {% include "header.html" %}
 
-<div class="min-h-screen flex flex-col justify-center items-center bg-gray-50">
-    <div class="bg-white rounded-xl shadow-md p-8 w-full max-w-md text-center">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Selamat Datang, {{ username }}!</h2>
-        <p class="text-gray-600 mb-6">Ini adalah halaman khusus Anda setelah login.</p>
-        <a href="{{ url_for('auth_bp.logout') }}"
-            class="bg-red-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-red-700 transition">
-            Logout
-        </a>
+<div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 py-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 w-full max-w-6xl mx-auto justify-items-center">
+
+        <!-- Card 1: Deteksi -->
+        <div
+            class="bg-white shadow-lg rounded-2xl p-8 flex flex-col items-center text-center transition-transform hover:scale-105 w-80">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Deteksi</h3>
+            <p class="text-gray-500 mb-6">Scan foto untuk rekomendasi panen</p>
+            <img src="{{ url_for('public_files', filename='images/camera.jpg') }}" alt="camera" class="w-24 h-24 mb-6">
+            <a href="{{ url_for('post_routers.deteksi') }}"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                Mulai Deteksi
+            </a>
+        </div>
+
+        <!-- Card 2: Harga Pasar -->
+        <div
+            class="bg-white shadow-lg rounded-2xl p-8 flex flex-col items-center text-center transition-transform hover:scale-105 w-80">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Harga Pasar TBS</h3>
+            <p class="text-gray-500 mb-6">Pantau harga tandan buah segar</p>
+            <img src="{{ url_for('public_files', filename='images/price.jpg') }}" alt="price" class="w-24 h-24 mb-6">
+            <a href="#"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                Lihat Harga
+            </a>
+        </div>
+
+        <!-- Card 3: Histori -->
+        <div
+            class="bg-white shadow-lg rounded-2xl p-8 flex flex-col items-center text-center transition-transform hover:scale-105 w-80">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Histori</h3>
+            <p class="text-gray-500 mb-6">Catatan scan</p>
+            <img src="{{ url_for('public_files', filename='images/history.jpg') }}" alt="history"
+                class="w-24 h-24 mb-6">
+            <a href="#"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                Lihat
+            </a>
+        </div>
     </div>
 </div>
 

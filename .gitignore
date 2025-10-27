@@ -13,7 +13,7 @@ venv/
 # Node / Frontend
 node_modules/
 src/static/dist/
-
+src/static/uploads/
 # IDE / Editor
 .vscode/
 .idea/

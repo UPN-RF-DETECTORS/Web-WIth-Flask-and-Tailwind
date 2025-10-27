@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'header.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 py-10" x-data="tableHandler()">
+    <div class="bg-white shadow-xl rounded-2xl p-6 w-full max-w-5xl">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">Hasil Deteksi</h1>
+
+        <div class="flex justify-center mb-6">
+            <img src="{{ image_url }}" alt="Hasil Deteksi"
+                class="w-full max-w-4xl rounded-xl border border-gray-200 shadow-md object-contain max-h-[400px] sm:max-h-[600px]">
+        </div>
+
+        <form action="{{ url_for('post_routers.simpan_edit') }}" method="POST">
+            <input type="hidden" name="image_path" value="{{ image_url }}">
+
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                <p class="text-gray-700 text-lg">
+                    Ditemukan <span class="font-semibold text-green-600">{{ class_count }}</span> objek.
+                </p>
+                <button type="button" @click="addRow()"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1">
+                    <span>➕</span> Tambah Objek
+                </button>
+            </div>
+
+            <!-- Responsive table container -->
+            <div class="overflow-x-auto rounded-lg shadow-sm">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-gray-700 font-semibold">Class Label</th>
+                            <th class="px-4 py-2 text-left text-gray-700 font-semibold">Counter</th>
+                            <th class="px-4 py-2 text-center text-gray-700 font-semibold">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dnd-table" class="bg-white divide-y divide-gray-200">
+                        {% for label in class_labels %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-2 py-2">
+                                <select name="class_label_{{ loop.index }}"
+                                    class="border border-gray-300 rounded px-2 py-1 w-full text-sm sm:text-base">
+                                    {% for opt in yaml_labels %}
+                                    <option value="{{ opt }}" {% if opt==label %}selected{% endif %}>{{ opt }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td class="px-2 py-2">
+                                <input type="number" name="counter_{{ loop.index }}" value="1"
+                                    class="border border-gray-300 rounded px-2 py-1 w-full text-sm sm:text-base">
+                            </td>
+                            <td class="px-2 py-2 text-center">
+                                <button type="button" @click="removeRow($event)"
+                                    class="text-red-600 font-semibold hover:text-red-800 transition-colors">×</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex items-center mt-4 mb-6">
+                <input id="semua_benar" name="semua_benar" type="checkbox" value="true"
+                    class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                <label for="semua_benar" class="ml-2 block text-sm text-gray-700">
+                    Semua hasil deteksi sudah benar
+                </label>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors">
+                Simpan Hasil
+            </button>
+        </form>
+
+        <a href="{{ url_for('post_routers.deteksi') }}"
+            class="inline-block mt-6 text-green-600 hover:text-green-700 font-medium hover:underline">
+            ← Deteksi Gambar Lain
+        </a>
+    </div>
+</div>
+
+<script>
+    function tableHandler() {
+        return {
+            addRow() {
+                const table = document.querySelector("#dnd-table");
+                const index = table.children.length + 1;
+
+                let options = `{% for opt in yaml_labels %}<option value="{{ opt }}">{{ opt }}</option>{% endfor %}`;
+
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-gray-50 transition-colors";
+                tr.innerHTML = `
+                <td class="px-2 py-2">
+                    <select name="class_label_${index}" class="border border-gray-300 rounded px-2 py-1 w-full text-sm sm:text-base bg-white">
+                        ${options}
+                    </select>
+                </td>
+                <td class="px-2 py-2">
+                    <input type="number" name="counter_${index}" value="1"
+                        class="border border-gray-300 rounded px-2 py-1 w-full text-sm sm:text-base">
+                </td>
+                <td class="px-2 py-2 text-center">
+                    <button type="button" onclick="this.closest('tr').remove()"
+                        class="text-red-600 font-semibold hover:text-red-800 transition-colors">×</button>
+                </td>
+            `;
+                table.appendChild(tr);
+            },
+            removeRow(event) {
+                event.target.closest('tr').remove();
+            },
+            initDrag() {
+                new Sortable(document.getElementById('dnd-table'), {
+                    animation: 150,
+                });
+            }
+        }
+    }
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('tableHandler', tableHandler)
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const handler = tableHandler();
+        handler.initDrag();
+    });
+</script>
+
+{% endblock %}
