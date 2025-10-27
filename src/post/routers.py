@@ -1,11 +1,18 @@
-from flask import Blueprint, render_template, request, redirect, url_for, current_app
+from flask import (Blueprint, render_template, request, redirect, 
+                   url_for, current_app,session)
+from datetime import datetime
+
 import os
 import yaml
-from ml_development import run_detection  # pastikan ini sudah versi baru
 
+from post.model import Post
+from core.db_config import db
+from ml_development import run_detection  # pastikan ini sudah versi baru
+from _utils import login_required
 post_bp = Blueprint("post_routers", __name__, url_prefix="/")
 
 @post_bp.route("/deteksi", methods=["GET", "POST"])
+@login_required
 def deteksi():
     if request.method == "POST":
         file = request.files.get("file")
@@ -43,11 +50,17 @@ def deteksi():
 
 
 @post_bp.route("/simpan-edit", methods=["POST"])
+@login_required
 def simpan_edit():
+    user_id = session.get("user_id")
+    if not user_id:
+        print("❌ User belum login!")
+        return redirect(url_for("auth_bp.login_page"))
+
     image_path = request.form.get("image_path")
     semua_benar = request.form.get("semua_benar")
 
-    # Ambil semua class_label dan counter
+    # Ambil semua class_label dan counter dari form
     class_labels = []
     counters = []
     i = 1
@@ -60,6 +73,7 @@ def simpan_edit():
         counters.append(int(counter))
         i += 1
 
+    # Optional: print debug
     if semua_benar:
         print("✅ Semua hasil deteksi dianggap benar.")
     else:
@@ -68,4 +82,17 @@ def simpan_edit():
             print(f"Objek {idx}: class_label={lbl}, counter={cnt}")
 
     print(f"🖼️ Gambar: {image_path}")
+
+    # Simpan ke database
+    new_post = Post(  # UUID unik sebagai string
+        user_id=user_id,
+        image_url=image_path,
+        result={"labels": class_labels, "counters": counters},
+        create_at=datetime.utcnow(),
+        update_at=datetime.utcnow()
+    )
+    db.session.add(new_post)
+    db.session.commit()
+    print(f"✅ Post berhasil disimpan: {new_post.post_id}")
+
     return redirect(url_for("post_routers.deteksi"))

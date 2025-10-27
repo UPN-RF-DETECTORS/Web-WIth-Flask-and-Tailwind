@@ -1,19 +1,59 @@
 <nav class="bg-white shadow-sm">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-            <img src="{{ url_for('public_files', filename='images/logo.jpg') }}" alt="PalmDetector Logo"
-                class="w-10 h-10 rounded-lg shadow-sm">
-            <span class="font-bold text-green-700 text-xl tracking-wide">PalmDetector</span>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+
+            <!-- Logo + Nama -->
+            <div class="flex-shrink-0">
+                {% if session.get('username') %}
+                <a href="{{ url_for('auth_bp.dashboard_page') }}" class="flex items-center">
+                    {% else %}
+                    <a href="{{ url_for('auth_bp.index_page') }}" class="flex items-center">
+                        {% endif %}
+                        <img class="w-10 h-10 rounded-lg shadow-sm"
+                            src="{{ url_for('public_files', filename='images/logo.jpg') }}" alt="PalmDetector Logo">
+                        <span class="ml-2 font-bold text-green-700 text-xl tracking-wide">PalmDetector</span>
+                    </a>
+            </div>
+
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-4">
+                {% if session.get('username') %}
+                <span class="text-gray-700 font-medium">Hi, {{ session['username'] }}</span>
+                <a href="{{ url_for('auth_bp.logout') }}" class="text-gray-500 hover:text-red-600 ml-4">Logout</a>
+                {% else %}
+                <a href="{{ url_for('auth_bp.login_page') }}"
+                    class="flex items-center text-gray-700 hover:text-green-700 font-medium">
+                    <i class="fa-solid fa-user mr-1"></i> Masuk
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden flex items-center">
+                <button @click="open = !open" class="text-gray-700 hover:text-green-700 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path :class="{'hidden': open, 'inline-flex': !open }" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path :class="{'hidden': !open, 'inline-flex': open }" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
         </div>
-        <div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div x-data="{ open: false }" class="md:hidden">
+        <div x-show="open" class="px-2 pt-2 pb-3 space-y-1 bg-white shadow-inner">
             {% if session.get('username') %}
-            <span class="text-gray-700 font-medium">Hi, {{ session['username'] }}</span>
-            <a href="{{ url_for('auth_bp.logout') }}" class="ml-4 text-gray-500 hover:text-red-600">Logout</a>
+            <span class="block px-3 py-2 text-gray-700 font-medium">Hi, {{ session['username'] }}</span>
+            <a href="{{ url_for('auth_bp.logout') }}"
+                class="block px-3 py-2 text-gray-500 hover:text-red-600">Logout</a>
             {% else %}
             <a href="{{ url_for('auth_bp.login_page') }}"
-                class="flex items-center text-gray-700 hover:text-green-700 font-medium">
-                <i class="fa-solid fa-user mr-2"></i> Masuk
-            </a>
+                class="block px-3 py-2 text-gray-700 hover:text-green-700 font-medium">Masuk</a>
             {% endif %}
         </div>
     </div>

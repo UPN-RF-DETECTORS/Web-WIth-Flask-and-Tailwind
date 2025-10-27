@@ -1,5 +1,6 @@
 import os
-from flask import Flask,send_from_directory
+from flask import (Flask,send_from_directory,session,redirect,url_for)
+from datetime import timedelta
 from core.db_config import db
 
 def create_app():
@@ -10,10 +11,10 @@ def create_app():
         static_folder=os.path.join(BASE_DIR, "static")
     )
 
-    app.config['SECRET_KEY'] = 'secret'
+    app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "supersecurekey123")
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/palm_detector_dev'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10) 
     app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads")
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
@@ -28,5 +29,9 @@ def create_app():
     def public_files(filename):
         public_dir = os.path.join(BASE_DIR, 'public')
         return send_from_directory(public_dir, filename)
-
+    # buatkan server error handele
+    @app.errorhandler(500)
+    def handle_server_error(e):
+        session.clear()  # Auto logout saat error
+        return redirect(url_for('auth_bp.login_page'))
     return app

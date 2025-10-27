@@ -32,6 +32,7 @@ def login():
     data = request.form
     user = User.query.filter_by(username=data["username"]).first()
     if user and check_password_hash(user.password, data["password"]):
+        session.permanent = True
         session['user_id'] = user.user_id
         session['username'] = user.username
         flash(f"Selamat datang, {user.firstname}!", "success")

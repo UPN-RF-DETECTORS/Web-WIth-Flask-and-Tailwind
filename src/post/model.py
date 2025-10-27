@@ -6,7 +6,7 @@ from core.db_config import db
 class Post(db.Model):
     __tablename__ = 'post'
 
-    post_id = db.Column(db.String, primary_key=True, default=uuid4)
+    post_id = db.Column(db.String, primary_key=True, default=lambda:str(uuid4()))
     user_id = db.Column(db.String, db.ForeignKey('user.user_id'), nullable=False)
     image_url = db.Column(db.String, nullable=False)
     result = db.Column(db.JSON, nullable=True)
