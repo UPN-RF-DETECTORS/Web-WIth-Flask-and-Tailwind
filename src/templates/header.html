@@ -1,4 +1,4 @@
-<nav class="bg-white shadow-sm">
+<nav class="bg-white shadow-md" x-data="{ open: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
 
@@ -14,7 +14,6 @@
                         <span class="ml-2 font-bold text-green-700 text-xl tracking-wide">PalmDetector</span>
                     </a>
             </div>
-
 
             <!-- Desktop Menu -->
             <div class="hidden md:flex items-center space-x-4">
@@ -45,16 +44,16 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div x-data="{ open: false }" class="md:hidden">
-        <div x-show="open" class="px-2 pt-2 pb-3 space-y-1 bg-white shadow-inner">
-            {% if session.get('username') %}
-            <span class="block px-3 py-2 text-gray-700 font-medium">Hi, {{ session['username'] }}</span>
-            <a href="{{ url_for('auth_bp.logout') }}"
-                class="block px-3 py-2 text-gray-500 hover:text-red-600">Logout</a>
-            {% else %}
-            <a href="{{ url_for('auth_bp.login_page') }}"
-                class="block px-3 py-2 text-gray-700 hover:text-green-700 font-medium">Masuk</a>
-            {% endif %}
-        </div>
+    <div x-show="open" x-transition class="md:hidden px-2 pt-2 pb-3 space-y-1 bg-white shadow-inner">
+        {% if session.get('username') %}
+        <span class="block px-3 py-2 text-gray-700 font-medium">Hi, {{ session['username'] }}</span>
+        <a href="{{ url_for('auth_bp.logout') }}" class="block px-3 py-2 text-gray-500 hover:text-red-600">Logout</a>
+        {% else %}
+        <a href="{{ url_for('auth_bp.login_page') }}"
+            class="block px-3 py-2 text-gray-700 hover:text-green-700 font-medium">Masuk</a>
+        {% endif %}
     </div>
 </nav>
+
+<!-- Jangan lupa include Alpine.js di base.html -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

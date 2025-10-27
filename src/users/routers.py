@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from uuid import uuid4
 from core.db_config import db
 from users.model import User
+from post.model import Post
+from _utils import login_required
 
 auth_bp = Blueprint("auth_bp", __name__)
 reset_tokens = {}
@@ -50,6 +52,22 @@ def dashboard_page():
     
     return render_template("dashboard.html", username=session['username'])
 
+
+@auth_bp.route("/history")
+@login_required
+def history_page():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Silakan login terlebih dahulu.", "error")
+        return redirect(url_for("auth_bp.login_page"))
+    posts = Post.query.filter_by(user_id=user_id).order_by(Post.create_at.desc()).all()
+    # buat list hasil zip untuk setiap post
+    for post in posts:
+        result = post.result or {}
+        labels = result.get("labels", [])
+        counters = result.get("counters", [])
+        post.label_counter = list(zip(labels, counters))  # [(label, count), ...]
+    return render_template("history.html", posts=posts)
 
 @auth_bp.route("/logout")
 def logout():

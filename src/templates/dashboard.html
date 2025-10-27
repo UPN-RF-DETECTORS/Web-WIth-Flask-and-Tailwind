@@ -38,7 +38,7 @@
             <p class="text-gray-500 mb-6">Catatan scan</p>
             <img src="{{ url_for('public_files', filename='images/history.jpg') }}" alt="history"
                 class="w-24 h-24 mb-6">
-            <a href="#"
+            <a href="{{ url_for('auth_bp.history_page') }}"
                 class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                 Lihat
             </a>
