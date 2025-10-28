@@ -1,12 +1,16 @@
 {
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.16",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "tailwindcss": "^4.1.16"
   },
   "dependencies": {
     "flowbite": "^3.1.2"
   },
   "scripts": {
-    "dev": "npx @tailwindcss/cli -i ./src/static/css/input.css -o ./src/static/dist/output.css --watch"
+    "flask": "\".\\.venv\\Scripts\\python.exe\" src/server.py",
+    "tailwind": "npx @tailwindcss/cli -i ./src/static/css/input.css -o ./src/static/dist/output.css --watch",
+    "start": "concurrently \"npm run tailwind\" \"npm run flask\""
   }
 }

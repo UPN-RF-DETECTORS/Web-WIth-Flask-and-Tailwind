@@ -54,7 +54,7 @@ def deteksi():
 def simpan_edit():
     user_id = session.get("user_id")
     if not user_id:
-        print("❌ User belum login!")
+        print("User belum login!")
         return redirect(url_for("auth_bp.login_page"))
 
     image_path = request.form.get("image_path")
@@ -75,13 +75,13 @@ def simpan_edit():
 
     # Optional: print debug
     if semua_benar:
-        print("✅ Semua hasil deteksi dianggap benar.")
+        print("Semua hasil deteksi dianggap benar.")
     else:
-        print("🔧 Label hasil edit:")
+        print("Label hasil edit:")
         for idx, (lbl, cnt) in enumerate(zip(class_labels, counters), 1):
             print(f"Objek {idx}: class_label={lbl}, counter={cnt}")
 
-    print(f"🖼️ Gambar: {image_path}")
+    print(f"Gambar: {image_path}")
 
     # Simpan ke database
     new_post = Post(  # UUID unik sebagai string
@@ -93,6 +93,6 @@ def simpan_edit():
     )
     db.session.add(new_post)
     db.session.commit()
-    print(f"✅ Post berhasil disimpan: {new_post.post_id}")
+    print(f"Post berhasil disimpan: {new_post.post_id}")
 
     return redirect(url_for("post_routers.deteksi"))
