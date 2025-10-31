@@ -23,8 +23,10 @@ def create_app():
     # Register blueprints
     from users.routers import auth_bp
     from post.routers import post_bp
+    from market.routers import trend_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(post_bp)
+    app.register_blueprint(trend_bp)
     @app.route('/public/<path:filename>')
     def public_files(filename):
         public_dir = os.path.join(BASE_DIR, 'public')

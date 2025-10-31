@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'header.html' %}
+
+<div class="min-h-screen bg-gray-50 px-6 py-8">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+        <!-- Judul -->
+        <h1 class="text-3xl font-bold text-green-700 mb-4 sm:mb-0">
+            🌴 PalmDetector Dashboard
+        </h1>
+
+        <!-- Filter + Unduh -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+            <form id="filterForm"
+                class="flex flex-wrap items-center gap-3 bg-green-50 p-3 rounded-xl shadow-sm border border-green-200">
+                <div class="flex items-center gap-2">
+                    <label for="start_date" class="text-sm text-gray-700 font-medium">Mulai:</label>
+                    <input type="month" id="start_date" name="start_date"
+                        class="border border-green-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="end_date" class="text-sm text-gray-700 font-medium">Selesai:</label>
+                    <input type="month" id="end_date" name="end_date"
+                        class="border border-green-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                </div>
+                <button type="submit"
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow">
+                    Filter
+                </button>
+            </form>
+
+            <button id="downloadBtn"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow transition">
+                📥 Unduh Data
+            </button>
+        </div>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Grafik Tren Harga -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-lg font-semibold mb-4 text-gray-700">📈 Grafik Tren Harga TBS</h2>
+            <canvas id="priceChart" height="100"></canvas>
+        </div>
+
+        <!-- Sidebar Info -->
+        <div class="space-y-6">
+            <!-- Harga Rata-Rata Nasional -->
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-lg font-semibold text-gray-700">💰 Harga Rata-Rata Nasional</h2>
+                <p id="avg-price" class="text-3xl font-bold text-green-700 mt-2">Rp. — / kg</p>
+
+                <div class="w-full bg-gray-200 rounded-full h-3 mt-4">
+                    <div id="progress-bar" class="bg-green-500 h-3 rounded-full transition-all duration-700"
+                        style="width: 0%;"></div>
+                </div>
+                <p id="progress-text" class="text-right text-sm text-gray-600 mt-2">0%</p>
+            </div>
+
+            <!-- Tabel Harga -->
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-lg font-semibold mb-4 text-gray-700">📊 Tabel Harga TBS</h2>
+                <div class="overflow-y-auto max-h-96 border rounded-lg">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-green-50 sticky top-0">
+                            <tr class="border-b border-gray-200">
+                                <th class="py-2 px-3 font-semibold text-gray-700">Tanggal</th>
+                                <th class="py-2 px-3 font-semibold text-gray-700">Negara</th>
+                                <th class="py-2 px-3 font-semibold text-gray-700">Harga</th>
+                            </tr>
+                        </thead>
+                        <tbody id="price-table" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // 📥 Unduh data
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+        window.location.href = "/api/palm-oil";
+    });
+
+    // 🔄 Ambil data
+    async function fetchPrice(startDate = "", endDate = "") {
+        try {
+            const res = await fetch("/api/palm-oil");
+            if (!res.ok) throw new Error("Gagal mengambil data");
+            let data = await res.json();
+
+            if (!Array.isArray(data)) data = [];
+
+            // Filter data jika tanggal dipilih
+            if (startDate && endDate) {
+                data = data.filter(d => {
+                    const monthStr = String(d.month).padStart(2, "0");
+                    const dateStr = `${d.year}-${monthStr}`;
+                    return dateStr >= startDate && dateStr <= endDate;
+                });
+            }
+
+            // Hitung rata-rata
+            const avgPrice = data.length
+                ? data.reduce((s, d) => s + d.price, 0) / data.length
+                : 0;
+            document.getElementById("avg-price").textContent = `Rp. ${avgPrice.toLocaleString("id-ID")} / kg`;
+
+            const maxPrice = data.length ? Math.max(...data.map(d => d.price)) : 1;
+            const progress = (avgPrice / maxPrice) * 100;
+            document.getElementById("progress-bar").style.width = `${progress.toFixed(0)}%`;
+            document.getElementById("progress-text").textContent = `${progress.toFixed(0)}%`;
+
+            // Tabel
+            const table = document.getElementById("price-table");
+            table.innerHTML = data.length
+                ? data.map(d => `
+                    <tr class="hover:bg-green-50 transition">
+                        <td class="py-2 px-3">${String(d.month).padStart(2, "0")}-${d.year}</td>
+                        <td class="py-2 px-3">Indonesia</td>
+                        <td class="py-2 px-3 text-green-700 font-medium">Rp. ${d.price.toLocaleString("id-ID")}</td>
+                    </tr>`).join("")
+                : `<tr><td colspan="3" class="text-center py-4 text-gray-500">Data tidak tersedia</td></tr>`;
+
+            // Grafik
+            const ctx = document.getElementById("priceChart").getContext("2d");
+            if (window.priceChartInstance) window.priceChartInstance.destroy();
+            window.priceChartInstance = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: data.map(d => `${String(d.month).padStart(2, "0")}-${d.year}`),
+                    datasets: [{
+                        label: "Harga TBS (Rp/kg)",
+                        data: data.map(d => d.price),
+                        borderColor: "#16a34a",
+                        backgroundColor: "rgba(22,163,74,0.15)",
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: "#15803d"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { title: { display: true, text: "Harga (Rp/kg)" } },
+                        x: { title: { display: true, text: "Bulan - Tahun" } }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error(err);
+            alert("Gagal memuat data TBS.");
+        }
+    }
+
+    // Filter tanggal
+    document.getElementById("filterForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const start = document.getElementById("start_date").value;
+        const end = document.getElementById("end_date").value;
+        fetchPrice(start, end);
+    });
+
+    // Load awal
+    fetchPrice();
+</script>
+
+{% endblock %}
